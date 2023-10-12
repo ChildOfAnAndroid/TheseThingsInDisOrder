@@ -1,6 +1,6 @@
-// script.js
 const timeRemainingElement = document.getElementById('time-remaining');
 const progressBar = document.querySelector('.progress-bar');
+const hexagonsContainer = document.querySelector('.hexagons'); // Updated to target the hexagons container
 const taskDetails = document.querySelector('.task-details');
 let taskIndex = 0;
 
@@ -16,6 +16,27 @@ const tasks = [
     // Add more tasks here
 ];
 
+function displayHexagons() {
+    hexagonsContainer.innerHTML = ''; // Clear previous hexagons
+    const progress = (taskIndex / tasks.length) * 100;
+    const hexagonCount = Math.min(Math.floor((progress / 2)), 50);
+
+    for (let i = 0; i < hexagonCount; i++) {
+        const hexagon = document.createElement('div');
+        hexagon.classList.add('hexagon');
+        hexagonsContainer.appendChild(hexagon);
+
+        // Randomly position the hexagon on the page
+        const randomX = Math.random() * window.innerWidth;
+        const randomY = Math.random() * window.innerHeight;
+        hexagon.style.left = `${randomX}px`;
+        hexagon.style.top = `${randomY}px`;
+    }
+}
+
+// Call displayHexagons function when the page loads
+window.addEventListener('load', displayHexagons);
+
 function updateTimer(time) {
     timeRemainingElement.textContent = `${time} minutes`;
 
@@ -29,25 +50,23 @@ function updateTimer(time) {
 function startTask() {
     if (taskIndex < tasks.length) {
         const task = tasks[taskIndex];
-        updateTimer(task.time);
-        taskDetails.innerHTML = `<p class="task-name">${task.name}</p>`;
-        
-        // Update the progress bar width based on the task time
-        const progressBar = document.querySelector('.progress-bar');
-        progressBar.style.width = '100%'; // Reset the progress bar
         const totalTime = task.time * 60 * 1000; // Convert minutes to milliseconds
         let elapsed = 0;
-        
+
+        updateTimer(task.time);
+        taskDetails.innerHTML = `<p class="task-name">${task.name}</p`;
+
         const progressBarInterval = setInterval(() => {
-            elapsed += 1000; // Update every second
+            elapsed += 1000;
             progressBar.style.width = `${(elapsed / totalTime) * 100}%`;
-            
+
             if (elapsed >= totalTime) {
                 clearInterval(progressBarInterval);
+                taskIndex++;
+                displayHexagons(); // Show hexagons for progress
+                startTask();
             }
         }, 1000);
-
-        taskIndex++;
     } else {
         timeRemainingElement.textContent = 'No tasks remaining.';
     }
