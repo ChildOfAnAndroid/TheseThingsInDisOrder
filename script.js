@@ -1,8 +1,10 @@
+// script.js
 const timeRemainingElement = document.getElementById('time-remaining');
 const progressBar = document.querySelector('.progress-bar');
-const hexagonsContainer = document.querySelector('.hexagons'); // Updated to target the hexagons container
+const hexagonsContainer = document.querySelector('.hexagons');
 const taskDetails = document.querySelector('.task-details');
 let taskIndex = 0;
+let progressBarInterval;
 
 const tasks = [
     {
@@ -12,12 +14,12 @@ const tasks = [
     {
         name: 'Actimel and 1 pint of water',
         time: 10
-    },
+    }
     // Add more tasks here
 ];
 
 function displayHexagons() {
-    hexagonsContainer.innerHTML = ''; // Clear previous hexagons
+    hexagonsContainer.innerHTML = '';
     const progress = (taskIndex / tasks.length) * 100;
     const hexagonCount = Math.min(Math.floor((progress / 2)), 50);
 
@@ -26,7 +28,6 @@ function displayHexagons() {
         hexagon.classList.add('hexagon');
         hexagonsContainer.appendChild(hexagon);
 
-        // Randomly position the hexagon on the page
         const randomX = Math.random() * window.innerWidth;
         const randomY = Math.random() * window.innerHeight;
         hexagon.style.left = `${randomX}px`;
@@ -34,13 +35,9 @@ function displayHexagons() {
     }
 }
 
-// Call displayHexagons function when the page loads
-window.addEventListener('load', displayHexagons);
-
 function updateTimer(time) {
     timeRemainingElement.textContent = `${time} minutes`;
 
-    // Check if there are still tasks remaining
     if (taskIndex < tasks.length) {
         const progress = ((tasks[taskIndex].time - time) / tasks[taskIndex].time) * 100;
         progressBar.style.width = `${progress}%`;
@@ -50,20 +47,22 @@ function updateTimer(time) {
 function startTask() {
     if (taskIndex < tasks.length) {
         const task = tasks[taskIndex];
-        const totalTime = task.time * 60 * 1000; // Convert minutes to milliseconds
+        const totalTime = task.time * 60 * 1000;
         let elapsed = 0;
 
         updateTimer(task.time);
-        taskDetails.innerHTML = `<p class="task-name">${task.name}</p`;
+        taskDetails.innerHTML = `<p class="task-name">${task.name}</p>`;
 
-        const progressBarInterval = setInterval(() => {
+        clearInterval(progressBarInterval);
+
+        progressBarInterval = setInterval(() => {
             elapsed += 1000;
             progressBar.style.width = `${(elapsed / totalTime) * 100}%`;
 
             if (elapsed >= totalTime) {
                 clearInterval(progressBarInterval);
                 taskIndex++;
-                displayHexagons(); // Show hexagons for progress
+                displayHexagons();
                 startTask();
             }
         }, 1000);
@@ -72,4 +71,5 @@ function startTask() {
     }
 }
 
-document.querySelector('.start-button').addEventListener('click', startTask);
+const startButton = document.querySelector('.start-button');
+startButton.addEventListener('click', startTask);
